@@ -1,4 +1,4 @@
-const CACHE="vexakit-guide-languages-v10";
+const CACHE="vexakit-studio-v10";
 const FILES=["./","./index.html","./manifest.json","./assets/styles.css","./assets/app.js","./assets/extra.js","./assets/vexakit.svg","./assets/vexakit-192.png","./assets/vexakit-512.png"];
 self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith("vexakit-")&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

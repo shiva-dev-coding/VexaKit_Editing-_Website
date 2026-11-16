@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://shiva-dev-coding.github.io/VexaKit_Editing-_Website/sitemap.xml
