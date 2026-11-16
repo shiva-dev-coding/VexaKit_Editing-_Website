@@ -96,38 +96,50 @@ body.tool-page .modal-bottom{margin-top:27px;padding-top:18px;border-top:1px sol
 }
 
 
-/* Always-on luminous tool borders inspired by premium anime-site edge effects. */
+/* Continuous luminous orbit border: vivid multi-colour edge, always moving. */
 .tool-card,.featured-card,.related-item{
   position:relative;isolation:isolate;overflow:hidden;
-  border:2px solid color-mix(in srgb,var(--tone,var(--blue)) 38%,var(--line));
-  box-shadow:0 0 0 1px color-mix(in srgb,var(--tone,var(--blue)) 12%,transparent),
-             0 0 14px color-mix(in srgb,var(--tone,var(--blue)) 13%,transparent);
+  border:3px solid transparent;
+  background-clip:padding-box;
+  box-shadow:0 0 0 1px rgba(112,210,255,.16),0 0 20px rgba(144,91,255,.12);
 }
 .tool-card::after,.featured-card::after,.related-item::after{
-  content:"";position:absolute;inset:0;padding:3px;border-radius:inherit;
-  background:conic-gradient(from 0deg,transparent 0deg 245deg,
-    color-mix(in srgb,var(--tone,var(--accent)) 45%,transparent) 270deg,
-    var(--tone,var(--accent)) 292deg,#74ddff 316deg,#b69aff 337deg,transparent 360deg);
+  content:"";position:absolute;inset:0;padding:4px;border-radius:inherit;z-index:1;pointer-events:none;
+  background:conic-gradient(from 0deg,
+    transparent 0deg 38deg,
+    #ff4fa3 62deg,#ff9b55 91deg,#f5e86a 119deg,
+    #69f0bd 151deg,#4bd8ff 190deg,#8877ff 231deg,
+    #df62ff 270deg,transparent 302deg 360deg);
+  animation:vexa-border-orbit 4.6s linear infinite;
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
   -webkit-mask-composite:xor;mask-composite:exclude;
-  pointer-events:none;z-index:3;animation:vexa-border-orbit 3.2s linear infinite;
-  filter:drop-shadow(0 0 5px color-mix(in srgb,var(--tone,var(--accent)) 65%,transparent));
+  opacity:1;filter:drop-shadow(0 0 5px rgba(255,92,184,.55)) drop-shadow(0 0 8px rgba(79,211,255,.38));
 }
-.tool-card::before,.featured-card::before{z-index:0}
+.tool-card::before,.featured-card::before,.related-item::before{
+  content:"";position:absolute;inset:3px;z-index:0;border-radius:inherit;
+  background:linear-gradient(145deg,var(--panel),var(--panel2));
+  pointer-events:none;
+}
 .tool-card>* ,.featured-card>* ,.related-item>*{position:relative;z-index:2}
 .tool-card{border-radius:20px}
 .featured-card{--tone:var(--blue);border-radius:21px}
 .related-item{--tone:var(--violet);border-radius:14px}
 .tool-card:hover,.featured-card:hover,.related-item:hover{
-  border-color:var(--tone,var(--accent));
-  box-shadow:0 0 0 1px color-mix(in srgb,var(--tone,var(--accent)) 28%,transparent),
-    0 0 22px color-mix(in srgb,var(--tone,var(--accent)) 28%,transparent),
-    0 18px 42px #0002;
+  box-shadow:0 0 0 2px rgba(114,214,255,.18),0 0 28px rgba(255,79,163,.24),
+    0 0 34px rgba(106,105,255,.22),0 18px 42px #0003;
+  transform:translateY(-4px);
 }
 [data-theme="light"] .tool-card,[data-theme="light"] .featured-card,[data-theme="light"] .related-item{
-  border-color:color-mix(in srgb,var(--tone,var(--blue)) 42%,#fff);
-  box-shadow:0 0 0 1px color-mix(in srgb,var(--tone,var(--blue)) 12%,transparent),
-    0 0 13px color-mix(in srgb,var(--tone,var(--blue)) 15%,transparent),0 8px 22px #53658a12;
+  box-shadow:0 0 0 1px rgba(97,105,255,.13),0 0 18px rgba(255,92,174,.12),0 8px 22px #53658a12;
+}
+[data-theme="light"] .tool-card::before,[data-theme="light"] .featured-card::before{
+  background:linear-gradient(145deg,#fff,#f5f4ff);
 }
 @keyframes vexa-border-orbit{to{transform:rotate(360deg)}}
-@media(prefers-reduced-motion:reduce){.tool-card::after,.featured-card::after,.related-item::after{animation:none;opacity:.9}}
+@media(prefers-reduced-motion:reduce){.tool-card::after,.featured-card::after,.related-item::after{animation-duration:18s;}}
+/* Dedicated, roomy workspace when a tool is selected. */
+body.tool-page .overlay.open{align-items:flex-start;overflow-y:auto;padding:28px 18px;}
+body.tool-page .tool-modal{width:min(1080px,100%);max-height:none;min-height:calc(100vh - 56px);margin:auto;padding:34px;border-radius:26px;}
+body.tool-page .tool-workspace{padding:28px;min-height:250px;}
+body.tool-page .modal-top h2{font-size:30px;}
+@media(max-width:650px){body.tool-page .overlay.open{padding:10px 8px;}body.tool-page .tool-modal{min-height:calc(100vh - 20px);padding:18px;}body.tool-page .tool-workspace{padding:15px;}}

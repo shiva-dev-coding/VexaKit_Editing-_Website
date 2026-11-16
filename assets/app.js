@@ -52,9 +52,36 @@ function field(label,id,placeholder="",type="text",value=""){return `<div class=
 function area(label,id,placeholder="Paste or type here..."){return `<div class="field"><label for="${id}">${label}</label><textarea id="${id}" placeholder="${placeholder}"></textarea></div>`}
 function button(label,id="run",cls="btn-primary"){return `<button class="btn ${cls}" id="${id}">${label}</button>`}
 function result(){return `<div class="result-label">RESULT</div><div class="result-box" id="resultBox">Your result will appear here.</div>`}
-function navigateTool(id){location.href=`${location.pathname}?tool=${encodeURIComponent(id)}`;}
+function navigateTool(id){
+  const t=tools.find(x=>x.id===id); if(!t) return;
+  const url=new URL(location.href); url.searchParams.set("tool",id);
+  history.pushState({vexakitTool:id},"",url.pathname+url.search+url.hash);
+  openTool(id); window.scrollTo({top:0,behavior:"smooth"});
+}
 function openTool(id){let t=tools.find(x=>x.id===id);if(!t)return;currentTool=t;document.body.classList.add("tool-page");addRecent(id);$("#modalIcon").textContent=t.icon;$("#modalIcon").style.cssText=`--tone:${t.tone};--tint:${t.tint};color:${t.tone};background:${t.tint}`;$("#modalCategory").textContent=t.cat.toUpperCase()+" TOOL";$("#modalTitle").textContent=t.name;$("#modalDescription").textContent=t.desc;$("#favoriteTool").textContent=favs().includes(id)?"♥":"♡";$("#toolWorkspace").innerHTML=toolUI(id);let related=tools.filter(x=>x.cat===t.cat&&x.id!==id).slice(0,4);let extras=document.getElementById("toolRelated");if(!extras){extras=document.createElement("section");extras.id="toolRelated";extras.className="tool-related";$(".tool-modal").appendChild(extras)}extras.innerHTML=`<div class="related-head"><div><small>KEEP YOUR FLOW</small><h3>Related ${t.cat} tools</h3></div><a href="${location.pathname}">Browse all tools ↗</a></div><div class="related-list">${related.map(x=>`<a href="?tool=${x.id}" class="related-item"><span style="--tone:${x.tone};--tint:${x.tint}">${x.icon}</span><b>${x.name}</b><i>↗</i></a>`).join("")}</div>`;$("#toolOverlay").classList.add("open");$("#toolOverlay").setAttribute("aria-hidden","false");document.body.style.overflow="hidden";wireTool(id)}
-function closeTool(){if(new URLSearchParams(location.search).has("tool")){location.href=location.pathname;return}if(focusInterval){clearInterval(focusInterval);focusInterval=null}$("#toolOverlay").classList.remove("open");$("#toolOverlay").setAttribute("aria-hidden","true");document.body.style.overflow="";currentTool=null}
+function hideToolView(){
+  if(focusInterval){clearInterval(focusInterval);focusInterval=null;}
+  $("#toolOverlay").classList.remove("open");
+  $("#toolOverlay").setAttribute("aria-hidden","true");
+  document.body.style.overflow=""; document.body.classList.remove("tool-page"); currentTool=null;
+}
+function closeTool(){
+  const url=new URL(location.href);
+  if(url.searchParams.has("tool")){
+    url.searchParams.delete("tool"); history.pushState({},"",url.pathname+url.search+url.hash);
+  }
+  hideToolView();
+}
+window.addEventListener("popstate",()=>{
+  const id=new URLSearchParams(location.search).get("tool");
+  if(id && tools.some(t=>t.id===id)){openTool(id);}
+  else hideToolView();
+});
+// Related-tool links stay inside the app and open the selected tool immediately.
+document.addEventListener("click",e=>{
+  const link=e.target.closest("a.related-item");
+  if(link){e.preventDefault();const id=new URL(link.href).searchParams.get("tool");if(id)navigateTool(id);}
+});
 function toolUI(id){switch(id){
 case"compress":case"resize":case"convert":case"crop":return `<div class="dropzone"><strong>Choose an image to get started</strong>Files stay on this device. JPG, PNG, WebP supported.<input id="imgFile" type="file" accept="image/*"></div><div id="imgControls" hidden><img id="imgPreview" class="preview-image"><div class="field-grid">${id==="compress"?field("Quality (0.1–1)","quality","","number","0.78"):id==="resize"?field("Width (px)","width","","number","800")+field("Height (px)","height","","number","600"):id==="convert"?`<div class="field"><label>OUTPUT FORMAT</label><select id="format"><option value="image/webp">WebP</option><option value="image/jpeg">JPEG</option><option value="image/png">PNG</option></select></div>`:`<div class="field"><label>Aspect ratio</label><select id="aspect"><option value="free">Free crop (center)</option><option value="1">Square 1:1</option><option value="1.7777778">Landscape 16:9</option><option value=".8">Portrait 4:5</option></select></div>`}</div>${button(id==="compress"?"Compress & download":id==="resize"?"Resize & download":id==="convert"?"Convert & download":"Crop & download","processImage")}<p class="subtle" id="imgInfo"></p></div>`;
 case"palette":return `<p class="subtle">Choose a starting colour. We'll build a five-colour palette around it.</p><div class="field-grid">${field("Base colour","baseColor","","color","#ff9278")}</div>${button("Generate palette")}<div id="swatches" class="swatches"></div>`;
